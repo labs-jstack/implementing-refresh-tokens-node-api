@@ -1,7 +1,9 @@
 import { compare } from 'bcryptjs';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
+import { RefreshToken } from '../lib/RefreshToken';
 import { AccountsRepository } from '../repositories/AccountsRepository';
+import { RefreshTokenRepository } from '../repositories/RefreshTokenRepository';
 
 export class SignInController {
   static schema = z.object({
@@ -24,6 +26,8 @@ export class SignInController {
       return reply.code(400).send({ errors: 'Invalid credentials.' });
     }
     const accessToken = await reply.jwtSign({ sub: account.id });
-    return reply.code(200).send({ accessToken });
+    const refreshToken = RefreshToken.generate(account.id);
+    await RefreshTokenRepository.create({accountId: account.id, token: refreshToken});
+    return reply.code(200).send({ accessToken, refreshToken });
   };
 }
