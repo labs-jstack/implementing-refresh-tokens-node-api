@@ -18,10 +18,11 @@ model Account {
 }
 
 model RefreshToken {
-  id        String  @id @default(uuid()) @db.Uuid
-  token     String
-  accountId String  @db.Uuid
-  accounts  Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  id        String   @id @default(uuid()) @db.Uuid
+  expiresAt DateTime @map("expires_at")
+  issuedAt  DateTime @default(now()) @map("issued_at")
+  accountId String   @db.Uuid
+  accounts  Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
 }

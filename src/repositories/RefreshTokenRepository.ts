@@ -3,41 +3,33 @@ import { prisma } from '../lib/prisma';
 
 interface ICreateDTO {
   accountId: string;
-  token: string;
+  expiresAt: Date;
 }
 
 export class RefreshTokenRepository {
-  static create({ accountId, token }: ICreateDTO): Promise<RefreshToken> {
-    return prisma.refreshToken.create({
-      data: {
-        token,
-        accountId
-      }
-    });
-  }
-
-  static delete(token: string) {
-    return prisma.refreshToken.deleteMany({
+  static findById(id: string): Promise<RefreshToken | null> {
+    const refreshToken = prisma.refreshToken.findUnique({
       where: {
-        token
-      }
-    });
-  }
-
-  static deleteAllByAccountId(accountId: string) {
-    return prisma.refreshToken.deleteMany({
-      where: {
-        accountId
-      }
-    });
-  }
-
-  static async findByToken(token: string): Promise<RefreshToken | null> {
-    const refreshToken = await prisma.refreshToken.findFirst({
-      where: {
-        token
+        id
       }
     });
     return refreshToken;
+  }
+
+  static create({ accountId, expiresAt }: ICreateDTO): Promise<RefreshToken> {
+    return prisma.refreshToken.create({
+      data: {
+        expiresAt,
+        accountId
+      }
+    });
+  }
+
+  static delete(id: string) {
+    return prisma.refreshToken.delete({
+      where: {
+        id
+      }
+    });
   }
 }
